@@ -9,6 +9,7 @@ const refs = {
   btn: document.querySelector('[data-action="close-lightbox"]'),
   modal: document.querySelector('.lightbox__content'),
   lightbox__image: document.querySelector('.lightbox__image'),
+  overlay: document.querySelector('div.lightbox__overlay'),
 };
 
 const createGalleryElem = ({ preview, original, description }) =>
@@ -30,11 +31,10 @@ refs.gallery.insertAdjacentHTML('afterbegin', galleryMarkup);
 refs.image.classList.add('gallery__image');
 
 refs.gallery.addEventListener('click', onGalleryClick);
+
 function onGalleryClick(event) {
+  refs.overlay.addEventListener('click', closeOverlay);
   event.preventDefault();
-  if (event.target.nodeName !== 'IMG') {
-    return;
-  }
   if (event.target.nodeName === 'IMG') {
     refs.lightbox.classList.add('is-open');
     refs.lightbox__image.src = event.target.getAttribute('data-source');
@@ -43,12 +43,13 @@ function onGalleryClick(event) {
   window.addEventListener('keyup', clickKey);
 }
 
-refs.btn.addEventListener('click', closeLightBoxBtn);
 function closeLightBoxBtn() {
+  refs.btn.addEventListener('click', closeLightBoxBtn);
   refs.lightbox.classList.remove('is-open');
   refs.lightbox__image.src = '';
   refs.lightbox__image.alt = '';
   window.removeEventListener('keyup', clickKey);
+  refs.overlay.removeEventListener('click', closeOverlay);
 }
 
 //Закрытие модального окна по нажатию клавиши ESC.
@@ -61,5 +62,8 @@ function clickKey(event) {
 
 //Закрытие модального окна по клику на div.lightbox__overlay.
 
-const lightboxOverlayRef = document.querySelector('div.lightbox__overlay');
-lightboxOverlayRef.addEventListener('click', closeLightBoxBtn);
+function closeOverlay(event) {
+  if (event.target === event.currentTarget) {
+    closeLightBoxBtn();
+  }
+}
